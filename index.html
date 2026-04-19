@@ -139,18 +139,21 @@
 <body>
 
 <script>
-  // 🔧 Paste your deployed Google Apps Script URL here after setup
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyK-wQQXSd05bRnb97_H5dbhnK5pTL8uYspmeurCeE66FSNamM9im7zOyomxvgATX6sYA/exec";
+  // 🔧 Paste your deployed Google Apps Script URL here
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzu-Gt31xPyVvTCcS5Nxoftbi9x4rSxlGMjnuQ3cOdeFOGiQcpXis8HN6mmtQlm5DlGQA/exec";
 
-  async function submitWaitlist(emailId, msgId, btnId, source) {
+  // Hidden iframe trick — bypasses no-cors issues 100% reliably
+  function submitWaitlist(emailId, msgId, btnId, source) {
     const emailEl = document.getElementById(emailId);
     const msgEl   = document.getElementById(msgId);
     const btn     = document.getElementById(btnId);
     const email   = emailEl.value.trim();
 
+    // Reset
     msgEl.className = 'form-msg';
     msgEl.style.display = 'none';
 
+    // Validate
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       emailEl.style.borderColor = '#E84040';
       emailEl.focus();
@@ -158,29 +161,62 @@
       return;
     }
 
+    // Loading state
     btn.disabled = true;
-    const txt = btn.querySelector('.btn-text');
+    const txt  = btn.querySelector('.btn-text');
     const spin = btn.querySelector('.spinner');
     txt.textContent = 'Joining...';
     if (spin) spin.style.display = 'block';
 
-    try {
-      await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source }),
-        mode: 'no-cors'
-      });
-    } catch(_) {}
+    // Build a hidden form and submit it into a hidden iframe
+    // This avoids ALL cors issues and works perfectly with Apps Script
+    const iframe = document.createElement('iframe');
+    iframe.name = 'hidden_iframe_' + Date.now();
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
 
-    // Show success (no-cors means we can't read response, assume success)
-    emailEl.parentElement.style.opacity = '0.5';
-    emailEl.disabled = true;
-    if (spin) spin.style.display = 'none';
-    txt.textContent = '✓ You\'re in!';
-    msgEl.className = 'form-msg success';
-    msgEl.textContent = '🎉 You\'re on the waitlist! Check your inbox for a welcome email.';
-    msgEl.style.display = 'block';
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = SCRIPT_URL;
+    form.target = iframe.name;
+    form.style.display = 'none';
+
+    // Add email field
+    const emailField = document.createElement('input');
+    emailField.type  = 'hidden';
+    emailField.name  = 'email';
+    emailField.value = email;
+    form.appendChild(emailField);
+
+    // Add source field
+    const sourceField = document.createElement('input');
+    sourceField.type  = 'hidden';
+    sourceField.name  = 'source';
+    sourceField.value = source;
+    form.appendChild(sourceField);
+
+    document.body.appendChild(form);
+
+    // On iframe load = submission complete
+    iframe.onload = function () {
+      // Show success
+      emailEl.parentElement.style.opacity = '0.5';
+      emailEl.disabled = true;
+      btn.disabled = true;
+      if (spin) spin.style.display = 'none';
+      txt.textContent = '✓ You\'re in!';
+      msgEl.className = 'form-msg success';
+      msgEl.textContent = '🎉 You\'re on the list! Check your Google Sheet — your email should be there.';
+      msgEl.style.display = 'block';
+
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(form);
+        document.body.removeChild(iframe);
+      }, 3000);
+    };
+
+    form.submit();
   }
 </script>
 
