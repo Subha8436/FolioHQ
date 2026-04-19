@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PortalHQ — The Client Portal for Freelancers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;0,900;1,300;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #F5F0E8; --ink: #1A1714; --clay: #C4622D; --clay-light: #E8845A;
+      --sage: #4A6741; --warm-gray: #9E9488; --card-bg: #FDFAF5; --border: #E2DAD0;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 5%; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(245,240,232,0.92); backdrop-filter: blur(12px); z-index: 100; animation: fadeDown 0.6s ease forwards; }
+    .logo { font-family: 'Fraunces', serif; font-weight: 900; font-size: 1.4rem; color: var(--ink); letter-spacing: -0.5px; }
+    .logo span { color: var(--clay); }
+    nav ul { display: flex; gap: 2rem; list-style: none; }
+    nav ul a { text-decoration: none; color: var(--warm-gray); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    nav ul a:hover { color: var(--ink); }
+    .nav-cta { background: var(--ink); color: var(--cream) !important; padding: 0.5rem 1.2rem; border-radius: 100px; font-weight: 600 !important; transition: background 0.2s, transform 0.2s !important; }
+    .nav-cta:hover { background: var(--clay) !important; color: white !important; transform: translateY(-1px); }
+    .hero { padding: 7rem 5% 5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; max-width: 1200px; margin: 0 auto; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--clay); color: white; font-size: 0.78rem; font-weight: 600; padding: 0.35rem 0.9rem; border-radius: 100px; margin-bottom: 1.5rem; letter-spacing: 0.5px; text-transform: uppercase; animation: fadeUp 0.7s 0.1s ease both; }
+    .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(2.8rem, 5vw, 4.2rem); font-weight: 900; line-height: 1.05; letter-spacing: -2px; margin-bottom: 1.5rem; animation: fadeUp 0.7s 0.2s ease both; }
+    .hero h1 em { font-style: italic; color: var(--clay); }
+    .hero > div > p { font-size: 1.1rem; color: #5A534A; max-width: 460px; margin-bottom: 2.5rem; line-height: 1.7; animation: fadeUp 0.7s 0.3s ease both; }
+    .waitlist-form { animation: fadeUp 0.7s 0.4s ease both; }
+    .form-row { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .form-row input { flex: 1; padding: 0.85rem 1.2rem; border: 1.5px solid var(--border); border-radius: 100px; background: white; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: var(--ink); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .form-row input:focus { border-color: var(--clay); box-shadow: 0 0 0 3px rgba(196,98,45,0.12); }
+    .form-row input::placeholder { color: var(--warm-gray); }
+    .btn-primary { background: var(--clay); color: white; border: none; padding: 0.85rem 1.8rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; white-space: nowrap; box-shadow: 0 4px 14px rgba(196,98,45,0.35); display: flex; align-items: center; gap: 0.5rem; }
+    .btn-primary:hover { background: #A8501F; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(196,98,45,0.45); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .spinner { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.35); border-top-color: white; border-radius: 50%; animation: spin 0.65s linear infinite; display: none; flex-shrink: 0; }
+    .form-note { font-size: 0.8rem; color: var(--warm-gray); animation: fadeUp 0.7s 0.5s ease both; margin-top: 0.4rem; }
+    .form-msg { display: none; padding: 0.65rem 1.2rem; border-radius: 100px; font-size: 0.86rem; font-weight: 500; margin-top: 0.6rem; }
+    .form-msg.success { background: #EAF4E8; color: var(--sage); border: 1px solid #C2DFbf; }
+    .form-msg.error { background: #FDECEA; color: #C0392B; border: 1px solid #F5C6C2; }
+    .hero-visual { animation: fadeUp 0.8s 0.3s ease both; }
+    .portal-mockup { background: white; border-radius: 18px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(26,23,20,0.1), 0 4px 16px rgba(26,23,20,0.06); overflow: hidden; transform: rotate(1.5deg); transition: transform 0.4s ease; }
+    .portal-mockup:hover { transform: rotate(0deg) scale(1.01); }
+    .mockup-bar { background: var(--ink); padding: 0.8rem 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #FF5F57; } .dot-y { background: #FEBC2E; } .dot-g { background: #28C840; }
+    .mockup-url { margin-left: 0.5rem; background: rgba(255,255,255,0.1); border-radius: 4px; padding: 0.2rem 0.8rem; font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+    .mockup-body { padding: 1.2rem; }
+    .mockup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .mockup-logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 0.95rem; color: var(--clay); }
+    .mockup-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--clay), var(--clay-light)); }
+    .mockup-greeting { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 0.4rem; }
+    .mockup-sub { font-size: 0.72rem; color: var(--warm-gray); margin-bottom: 1rem; }
+    .mockup-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+    .mockup-card { background: var(--cream); border-radius: 10px; padding: 0.8rem; border: 1px solid var(--border); }
+    .mockup-card-label { font-size: 0.65rem; color: var(--warm-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.2rem; }
+    .mockup-card-val { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.3rem; color: var(--ink); }
+    .mockup-card-val.green { color: var(--sage); }
+    .mockup-files { background: var(--cream); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+    .mockup-file-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); font-size: 0.72rem; color: var(--ink); }
+    .mockup-file-row:last-child { border-bottom: none; }
+    .file-icon { width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: white; flex-shrink: 0; }
+    .file-icon.pdf { background: #E84040; } .file-icon.doc { background: #2B7BE8; } .file-icon.fig { background: #A259FF; }
+    .file-size { margin-left: auto; color: var(--warm-gray); font-size: 0.65rem; }
+    .social-proof { text-align: center; padding: 2rem 5%; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: white; }
+    .social-proof p { font-size: 0.82rem; color: var(--warm-gray); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 1.2rem; }
+    .avatars { display: flex; align-items: center; justify-content: center; }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; border: 2.5px solid white; margin-left: -10px; font-size: 1rem; display: flex; align-items: center; justify-content: center; background: var(--cream); }
+    .avatar:first-child { margin-left: 0; }
+    .avatar-text { margin-left: 0.8rem; font-size: 0.85rem; color: var(--ink); font-weight: 500; }
+    .avatar-text strong { color: var(--clay); }
+    .features { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; }
+    .section-label { display: inline-block; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--clay); margin-bottom: 1rem; }
+    .section-title { font-family: 'Fraunces', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; letter-spacing: -1.5px; line-height: 1.1; max-width: 520px; margin-bottom: 1rem; }
+    .section-sub { color: #5A534A; max-width: 480px; line-height: 1.7; margin-bottom: 3.5rem; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .feature-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; }
+    .feature-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(26,23,20,0.08); border-color: var(--clay-light); }
+    .feature-icon { width: 46px; height: 46px; border-radius: 12px; background: var(--cream); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 1.2rem; }
+    .feature-card h3 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem; letter-spacing: -0.3px; }
+    .feature-card p { font-size: 0.88rem; color: #6B6359; line-height: 1.65; }
+    .how { background: var(--ink); color: var(--cream); padding: 6rem 5%; }
+    .how-inner { max-width: 1200px; margin: 0 auto; }
+    .how .section-label { color: var(--clay-light); }
+    .how .section-title { color: var(--cream); max-width: 100%; }
+    .how .section-sub { color: rgba(245,240,232,0.6); }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 3rem; }
+    .step-num { font-family: 'Fraunces', serif; font-size: 3.5rem; font-weight: 900; color: rgba(196,98,45,0.25); line-height: 1; margin-bottom: 0.5rem; }
+    .step h3 { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--cream); }
+    .step p { font-size: 0.85rem; color: rgba(245,240,232,0.55); line-height: 1.65; }
+    .pricing { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; text-align: center; }
+    .pricing .section-title, .pricing .section-sub { margin-left: auto; margin-right: auto; max-width: 100%; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; text-align: left; }
+    .pricing-card { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 20px; padding: 2.2rem; transition: transform 0.3s, box-shadow 0.3s; }
+    .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(26,23,20,0.1); }
+    .pricing-card.featured { background: var(--ink); border-color: var(--clay); color: var(--cream); transform: scale(1.03); }
+    .pricing-card.featured:hover { transform: scale(1.03) translateY(-4px); }
+    .plan-name { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--warm-gray); margin-bottom: 1rem; }
+    .featured .plan-name { color: var(--clay-light); }
+    .plan-price { font-family: 'Fraunces', serif; font-size: 3rem; font-weight: 900; letter-spacing: -2px; line-height: 1; margin-bottom: 0.2rem; }
+    .plan-price span { font-size: 1rem; font-weight: 400; color: var(--warm-gray); letter-spacing: 0; }
+    .featured .plan-price span { color: rgba(245,240,232,0.5); }
+    .plan-desc { font-size: 0.85rem; color: #6B6359; margin-bottom: 1.8rem; line-height: 1.6; }
+    .featured .plan-desc { color: rgba(245,240,232,0.55); }
+    .plan-features { list-style: none; margin-bottom: 2rem; }
+    .plan-features li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; color: #5A534A; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+    .featured .plan-features li { color: rgba(245,240,232,0.75); border-bottom-color: rgba(255,255,255,0.08); }
+    .plan-features li::before { content: '✓'; color: var(--sage); font-weight: 700; flex-shrink: 0; }
+    .featured .plan-features li::before { color: var(--clay-light); }
+    .btn-outline { display: block; width: 100%; padding: 0.85rem; border: 1.5px solid var(--border); border-radius: 100px; background: transparent; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-align: center; color: var(--ink); transition: background 0.2s, border-color 0.2s, transform 0.2s; }
+    .btn-outline:hover { background: var(--cream); border-color: var(--ink); transform: translateY(-1px); }
+    .cta-section { background: var(--clay); padding: 5rem 5%; text-align: center; position: relative; overflow: hidden; }
+    .cta-section::before { content: ''; position: absolute; top: -60%; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; background: rgba(255,255,255,0.06); }
+    .cta-section h2 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900; color: white; letter-spacing: -1.5px; margin-bottom: 1rem; position: relative; }
+    .cta-section > p { color: rgba(255,255,255,0.8); max-width: 460px; margin: 0 auto 2.5rem; font-size: 1rem; line-height: 1.7; position: relative; }
+    .cta-wrap { max-width: 440px; margin: 0 auto; position: relative; }
+    .cta-wrap .form-row input { background: white; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+    .btn-white { background: white; color: var(--clay); border: none; padding: 0.85rem 1.8rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.5rem; }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,0.2); }
+    .btn-white:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .cta-wrap .form-msg.success { background: rgba(255,255,255,0.2); color: white; border-color: rgba(255,255,255,0.3); }
+    footer { background: var(--ink); color: rgba(245,240,232,0.5); padding: 3rem 5%; display: flex; align-items: center; justify-content: space-between; }
+    footer .logo { color: var(--cream); }
+    footer p { font-size: 0.82rem; }
+    footer nav ul { gap: 1.5rem; }
+    footer nav ul a { color: rgba(245,240,232,0.45); font-size: 0.82rem; }
+    footer nav ul a:hover { color: var(--cream); }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    @media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 2rem; padding: 4rem 5% 3rem; } .portal-mockup { transform: rotate(0); } .features-grid { grid-template-columns: 1fr 1fr; } .steps { grid-template-columns: 1fr 1fr; } .pricing-grid { grid-template-columns: 1fr; } .pricing-card.featured { transform: scale(1); } nav ul { display: none; } }
+    @media (max-width: 560px) { .features-grid { grid-template-columns: 1fr; } .steps { grid-template-columns: 1fr; } .form-row { flex-direction: column; } footer { flex-direction: column; gap: 1rem; text-align: center; } }
+  </style>
+</head>
+<body>
+
+<script>
+  // 🔧 Paste your deployed Google Apps Script URL here after setup
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyK-wQQXSd05bRnb97_H5dbhnK5pTL8uYspmeurCeE66FSNamM9im7zOyomxvgATX6sYA/exec";
+
+  async function submitWaitlist(emailId, msgId, btnId, source) {
+    const emailEl = document.getElementById(emailId);
+    const msgEl   = document.getElementById(msgId);
+    const btn     = document.getElementById(btnId);
+    const email   = emailEl.value.trim();
+
+    msgEl.className = 'form-msg';
+    msgEl.style.display = 'none';
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailEl.style.borderColor = '#E84040';
+      emailEl.focus();
+      setTimeout(() => emailEl.style.borderColor = '', 1500);
+      return;
+    }
+
+    btn.disabled = true;
+    const txt = btn.querySelector('.btn-text');
+    const spin = btn.querySelector('.spinner');
+    txt.textContent = 'Joining...';
+    if (spin) spin.style.display = 'block';
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source }),
+        mode: 'no-cors'
+      });
+    } catch(_) {}
+
+    // Show success (no-cors means we can't read response, assume success)
+    emailEl.parentElement.style.opacity = '0.5';
+    emailEl.disabled = true;
+    if (spin) spin.style.display = 'none';
+    txt.textContent = '✓ You\'re in!';
+    msgEl.className = 'form-msg success';
+    msgEl.textContent = '🎉 You\'re on the waitlist! Check your inbox for a welcome email.';
+    msgEl.style.display = 'block';
+  }
+</script>
+
+<nav>
+  <div class="logo">Portal<span>HQ</span></div>
+  <ul>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#waitlist" class="nav-cta">Join Waitlist</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="hero-badge">🚀 Now accepting beta signups</div>
+    <h1>Your clients deserve a <em>better</em> experience.</h1>
+    <p>Stop juggling email, WhatsApp, and Google Drive. PortalHQ gives every client their own branded portal — files, invoices, updates, and messaging in one clean place.</p>
+    <div class="waitlist-form" id="waitlist">
+      <div class="form-row">
+        <input type="email" id="hero-email" placeholder="Enter your email address" />
+        <button class="btn-primary" id="hero-btn" onclick="submitWaitlist('hero-email','hero-msg','hero-btn','Hero')">
+          <span class="btn-text">Join Waitlist →</span>
+          <span class="spinner"></span>
+        </button>
+      </div>
+      <div class="form-msg" id="hero-msg"></div>
+    </div>
+    <p class="form-note">✦ Free forever plan available &nbsp;·&nbsp; No credit card required</p>
+  </div>
+  <div class="hero-visual">
+    <div class="portal-mockup">
+      <div class="mockup-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="mockup-url">client.portalhq.io/acme-designs</div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-header"><div class="mockup-logo">Acme Designs</div><div class="mockup-avatar"></div></div>
+        <div class="mockup-greeting">Welcome back, Sarah 👋</div>
+        <div class="mockup-sub">Your project is 72% complete · Last updated 2h ago</div>
+        <div class="mockup-cards">
+          <div class="mockup-card"><div class="mockup-card-label">Invoice Due</div><div class="mockup-card-val">$2,400</div></div>
+          <div class="mockup-card"><div class="mockup-card-label">Status</div><div class="mockup-card-val green">Active</div></div>
+        </div>
+        <div class="mockup-files">
+          <div class="mockup-file-row"><div class="file-icon pdf">PDF</div><span>Contract_Final.pdf</span><span class="file-size">248 KB</span></div>
+          <div class="mockup-file-row"><div class="file-icon doc">DOC</div><span>Brand_Brief.docx</span><span class="file-size">180 KB</span></div>
+          <div class="mockup-file-row"><div class="file-icon fig">FIG</div><span>Logo_v3.fig</span><span class="file-size">1.2 MB</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="social-proof">
+  <p>Trusted by freelancers worldwide</p>
+  <div class="avatars">
+    <div class="avatar">😊</div><div class="avatar">🧑</div><div class="avatar">👩</div><div class="avatar">🧔</div><div class="avatar">👨‍💻</div>
+    <div class="avatar-text"><strong>240+</strong> freelancers on the waitlist</div>
+  </div>
+</div>
+
+<section class="features" id="features">
+  <div class="reveal">
+    <span class="section-label">Everything you need</span>
+    <h2 class="section-title">One portal. Every client. Zero chaos.</h2>
+    <p class="section-sub">PortalHQ replaces 5 tools with one beautiful, branded space your clients will actually love using.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal"><div class="feature-icon">📁</div><h3>File Sharing</h3><p>Share deliverables, briefs, and assets in one organized space. No more "can you resend that?" emails ever again.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">💳</div><h3>Invoicing & Payments</h3><p>Send invoices and get paid directly in the portal via Stripe. Track payment status at a glance.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">📊</div><h3>Project Updates</h3><p>Keep clients in the loop with milestone tracking. They always know what you're working on.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">💬</div><h3>Client Messaging</h3><p>Centralized comments and messages. Replace scattered WhatsApp threads with professional communication.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">✍️</div><h3>E-Signatures</h3><p>Send contracts and get them signed digitally. Professional, legally sound, and takes seconds.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">🎨</div><h3>White-Label Branding</h3><p>Your logo, your colors, your domain. Clients see your brand — not ours. Look premium from day one.</p></div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="reveal">
+      <span class="section-label">Simple setup</span>
+      <h2 class="section-title">Up and running in under 10 minutes</h2>
+      <p class="section-sub">No technical skills needed. If you can use email, you can use PortalHQ.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">01</div><h3>Sign up free</h3><p>Create your account in 60 seconds. No credit card, no setup fees, no commitment.</p></div>
+      <div class="step reveal"><div class="step-num">02</div><h3>Brand your portal</h3><p>Add your logo and colors. Your portal instantly looks like your own product.</p></div>
+      <div class="step reveal"><div class="step-num">03</div><h3>Invite your client</h3><p>Send a link. Your client gets their own dedicated portal — no app download needed.</p></div>
+      <div class="step reveal"><div class="step-num">04</div><h3>Get paid faster</h3><p>Share files, send invoices, collect signatures. Everything in one place.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="reveal">
+    <span class="section-label">Simple pricing</span>
+    <h2 class="section-title">Start free. Scale when you're ready.</h2>
+    <p class="section-sub">No hidden fees. Cancel anytime. Early waitlist members lock in 40% off forever.</p>
+  </div>
+  <div class="pricing-grid reveal">
+    <div class="pricing-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0<span>/mo</span></div>
+      <p class="plan-desc">Perfect for getting started with your first client.</p>
+      <ul class="plan-features"><li>1 client portal</li><li>File sharing (1GB)</li><li>Basic messaging</li><li>PortalHQ branding</li></ul>
+      <button class="btn-outline" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Get started free</button>
+    </div>
+    <div class="pricing-card featured">
+      <div class="plan-name">⭐ Pro — Most Popular</div>
+      <div class="plan-price">$19<span>/mo</span></div>
+      <p class="plan-desc">Everything a full-time freelancer needs to look and work professionally.</p>
+      <ul class="plan-features"><li>Up to 10 client portals</li><li>Invoicing & Stripe payments</li><li>E-signature contracts</li><li>Project milestone tracking</li><li>Custom branding & logo</li><li>Priority support</li></ul>
+      <button class="btn-primary" style="width:100%; justify-content:center;" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">
+        <span class="btn-text">Join Waitlist →</span>
+      </button>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name">Agency</div>
+      <div class="plan-price">$59<span>/mo</span></div>
+      <p class="plan-desc">For agencies and studios managing multiple projects and teams.</p>
+      <ul class="plan-features"><li>Unlimited client portals</li><li>White-label (custom domain)</li><li>Team member accounts</li><li>Advanced analytics</li><li>Zapier & API access</li><li>Dedicated support</li></ul>
+      <button class="btn-outline">Contact us</button>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Stop losing clients to messy workflows.</h2>
+  <p>Join 240+ freelancers already on the waitlist. Early members get 40% off Pro — forever.</p>
+  <div class="cta-wrap">
+    <div class="form-row">
+      <input type="email" id="cta-email" placeholder="Your email address" />
+      <button class="btn-white" id="cta-btn" onclick="submitWaitlist('cta-email','cta-msg','cta-btn','CTA')">
+        <span class="btn-text">Claim my spot</span>
+        <span class="spinner" style="border-color:rgba(196,98,45,0.3);border-top-color:var(--clay);"></span>
+      </button>
+    </div>
+    <div class="form-msg" id="cta-msg"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">Portal<span>HQ</span></div>
+  <p>© 2025 PortalHQ. Built for freelancers, by freelancers.</p>
+  <nav><ul>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="mailto:hello@portalhq.io">Contact</a></li>
+  </ul></nav>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i * 80); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  document.querySelectorAll('input[type="email"]').forEach(input => {
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') input.nextElementSibling?.click(); });
+  });
+</script>
+</body>
+</html>
